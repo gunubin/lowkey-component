@@ -9,7 +9,7 @@ references, and mounting and unmounting.
 Import the Component class.
 
 ```typescript
-import {Component} from 'your-package-name';
+import {Component} from 'lowkey-component';
 ```
 
 Create a custom class that extends the Component class.
