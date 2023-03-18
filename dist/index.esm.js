@@ -372,4 +372,4 @@ var ComponentGenerator = /** @class */ (function () {
     return ComponentGenerator;
 }());
 
-export { Component, ComponentGenerator, ConnectedComponent };
+export { Component, ComponentGenerator, ConnectedComponent, StoreProvider };

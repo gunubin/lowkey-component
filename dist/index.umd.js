@@ -381,5 +381,6 @@
     exports.Component = Component;
     exports.ComponentGenerator = ComponentGenerator;
     exports.ConnectedComponent = ConnectedComponent;
+    exports.StoreProvider = StoreProvider;
 
 }));
