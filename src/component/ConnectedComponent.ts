@@ -1,5 +1,5 @@
 import {Refs} from './types'
-import {StoreProvider} from '../store/StoreProvider'
+import {StoreProvider} from '../store'
 import {Component} from './Component'
 import {Selector} from '../store/createSelector'
 import {Unsubscribe} from '../store/types'
