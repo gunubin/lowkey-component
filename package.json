@@ -1,0 +1,35 @@
+{
+  "name": "lowkey-component",
+  "description": "",
+  "version": "0.0.1",
+  "author": "gunubin",
+  "bugs": {
+    "url": "https://github.com/gunubin/lowkey-component/issues"
+  },
+  "dependencies": {
+    "fast-shallow-equal": "^1.0.0",
+    "typed-signals": "^2.5.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^24.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "rollup": "^3.19.1",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-typescript2": "^0.34.1",
+    "typescript": "^5.0.2"
+  },
+  "homepage": "https://github.com/gunubin/lowkey-component#readme",
+  "license": "ISC",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gunubin/lowkey-component.git"
+  },
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "types": "dist/index.d.ts",
+  "unpkg": "dist/index.umd.js"
+}
