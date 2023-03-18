@@ -1,38 +1,40 @@
-# Componentクラス
+# Component Class
 
-Componentクラスは、HTML要素を操作するための抽象化されたクラスです。イベントリスナーの追加、削除、ディスパッチや、子要素の参照の取得、マウント、アンマウントなど、HTML要素に対する操作を簡単に行えます。
+The Component class is an abstracted class for manipulating HTML elements. It simplifies operations
+on HTML elements such as adding, removing, and dispatching event listeners, retrieving child element
+references, and mounting and unmounting.
 
-# 使用方法
+# Usage
 
-1. Component クラスをインポートします。
+Import the Component class.
 
 ```typescript
 import {Component} from 'your-package-name';
 ```
 
-2. Component クラスを継承したカスタムクラスを作成します。
+Create a custom class that extends the Component class.
 
 ```typescript
 class MyComponent extends Component {
   constructor(element) {
-    super(element)
+    super(element);
   }
 
   didMount() {
-// コンポーネントがマウントされた時の処理
+// Process when the component is mounted
   }
 
   willUnmount() {
-// コンポーネントがアンマウントされる前の処理
+// Process before the component is unmounted
   }
 
   didUnmount() {
-// コンポーネントがアンマウントされた時の処理
+// Process when the component is unmounted
   }
 }
 ```
 
-3. カスタムコンポーネントを使用します。
+Use the custom component.
 
 ```typescript
 const element = document.getElementById('my-element');
