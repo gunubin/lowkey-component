@@ -1,3 +1,3 @@
 export {Component} from './Component'
 export {ConnectedComponent} from './ConnectedComponent'
-export {ComponentGenerator} from './ComponentGenerator'
+export {ComponentGenerator, ComponentMap} from './ComponentGenerator'
