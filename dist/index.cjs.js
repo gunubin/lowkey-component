@@ -844,6 +844,31 @@ var ComponentGenerator = /** @class */ (function () {
     return ComponentGenerator;
 }());
 
+/**
+ * ShanordComponentにするデコ-レーター
+ * 全ページで共通のコンポーネント
+ * ページ遷移してもunmount / destroyされないコンポーネント
+ */
+function sharedComponent(constructor) {
+    var _a;
+    return _a = /** @class */ (function (_super) {
+            __extends(class_1, _super);
+            function class_1() {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                var _this = _super.apply(this, args) || this;
+                _this._isShared = true;
+                _this._isMounted = false;
+                return _this;
+            }
+            return class_1;
+        }(constructor)),
+        _a.isShared = true,
+        _a;
+}
+
 exports.Component = Component;
 exports.ComponentGenerator = ComponentGenerator;
 exports.ConnectedComponent = ConnectedComponent;
@@ -852,3 +877,4 @@ exports.combineReducers = combineReducers;
 exports.createSelector = createSelector;
 exports.createSlice = createSlice;
 exports.createStore = createStore;
+exports.sharedComponent = sharedComponent;
