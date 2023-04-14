@@ -8,5 +8,5 @@ export declare class ConnectedComponent<THTMLElement extends HTMLElement = HTMLE
     private unsubscribes;
     private store;
     observe<TState, TReturn>(selector: Selector<TState, TReturn>, onChange: (val: TReturn) => void): TReturn;
-    willUnmount(): void;
+    didUnmount(): void;
 }

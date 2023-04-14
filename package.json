@@ -1,7 +1,7 @@
 {
   "name": "lowkey-component",
   "description": "",
-  "version": "0.0.8",
+  "version": "0.0.14",
   "author": "gunubin",
   "bugs": {
     "url": "https://github.com/gunubin/lowkey-component/issues"
@@ -17,7 +17,7 @@
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-typescript2": "^0.34.1",
-    "typescript": "^5.0.2"
+    "typescript": "^5.0.4"
   },
   "homepage": "https://github.com/gunubin/lowkey-component#readme",
   "license": "ISC",

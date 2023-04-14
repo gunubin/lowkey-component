@@ -1,50 +1,8 @@
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-/* global Reflect, Promise */
-
-var extendStatics = function(d, b) {
-    extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-    return extendStatics(d, b);
-};
-
-function __extends(d, b) {
-    if (typeof b !== "function" && b !== null)
-        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-    extendStatics(d, b);
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-}
-
-var __assign = function() {
-    __assign = Object.assign || function __assign(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-
 /**
  * Component Class
  */
-var Component = /** @class */ (function () {
-    function Component(element) {
+class Component {
+    constructor(element) {
         this.element = element;
         this.handlers = new Map();
         this.selected = new Map();
@@ -53,17 +11,13 @@ var Component = /** @class */ (function () {
         this.refs = {};
         //
     }
-    Object.defineProperty(Component.prototype, "isShared", {
-        // 全ページで共通のコンポーネント
-        // ページ遷移してもunmount / destroyされないコンポーネント
-        get: function () {
-            return this._isShared;
-        },
-        enumerable: false,
-        configurable: true
-    });
+    // 全ページで共通のコンポーネント
+    // ページ遷移してもunmount / destroyされないコンポーネント
+    get isShared() {
+        return this._isShared;
+    }
     // HTMLElementに接続する
-    Component.prototype.mount = function () {
+    mount() {
         if (this._isShared && this._isMounted) {
             return;
         }
@@ -73,33 +27,31 @@ var Component = /** @class */ (function () {
         this.selectRefs();
         this._isMounted = true;
         this.didMount();
-    };
-    Component.prototype.selectRefs = function () {
-        var _this = this;
-        (Object.keys(this.refs)).forEach(function (refName) {
-            var _a;
-            var ref = _this.element.querySelector("[ref=".concat(refName, "]"));
+    }
+    selectRefs() {
+        (Object.keys(this.refs)).forEach((refName) => {
+            const ref = this.element.querySelector(`[ref=${refName}]`);
             if (ref) {
-                _this.refs = __assign(__assign({}, _this.refs), (_a = {}, _a[refName] = new Component(ref), _a));
+                this.refs = Object.assign(Object.assign({}, this.refs), { [refName]: new Component(ref) });
             }
         });
-    };
-    Component.prototype.select = function (selectors) {
-        var element = this.element.querySelector(selectors);
-        var ret = element && new Component(element);
+    }
+    select(selectors) {
+        const element = this.element.querySelector(selectors);
+        const ret = element && new Component(element);
         ret && this.selected.set(selectors, ret);
         return ret;
-    };
-    Component.prototype.selectAll = function (selectors) {
-        var elements = Array.from(this.element.querySelectorAll(selectors));
-        var ret = elements.map(function (element) {
+    }
+    selectAll(selectors) {
+        const elements = Array.from(this.element.querySelectorAll(selectors));
+        const ret = elements.map(element => {
             return new Component(element);
         });
         ret.length > 0 && this.selected.set(selectors, ret);
         return ret;
-    };
-    Component.prototype.emit = function (type) {
-        var event;
+    }
+    emit(type) {
+        let event;
         if (typeof Event === 'function') {
             event = new Event(type);
         }
@@ -108,35 +60,34 @@ var Component = /** @class */ (function () {
             event.initEvent(type, true, true);
         }
         this.element.dispatchEvent(event);
-    };
-    Component.prototype.on = function (type, handler) {
+    }
+    on(type, handler) {
         this.handlers.set(handler, type);
         this.element.addEventListener(type, handler);
-    };
-    Component.prototype.off = function (type, handler) {
+    }
+    off(type, handler) {
         this.handlers.delete(handler);
         this.element.removeEventListener(type, handler);
-    };
-    Component.prototype.removeAllEventListeners = function (type) {
-        var _this = this;
-        var remove = [];
-        this.handlers.forEach(function (t, h) {
+    }
+    removeAllEventListeners(type) {
+        const remove = [];
+        this.handlers.forEach((t, h) => {
             if (!type || (type && t === type)) {
-                _this.element.removeEventListener(t, h);
+                this.element.removeEventListener(t, h);
                 remove.push(h);
             }
         });
-        remove.map(function (r) {
-            _this.handlers.delete(r);
+        remove.map((r) => {
+            this.handlers.delete(r);
         });
-    };
-    Component.prototype.destroy = function () {
-        Object.values(this.refs).forEach(function (ref) {
+    }
+    destroy() {
+        Object.values(this.refs).forEach((ref) => {
             ref === null || ref === void 0 ? void 0 : ref.destroy();
         });
-        this.selected.forEach(function (item) {
+        this.selected.forEach((item) => {
             if (Array.isArray(item)) {
-                item.map(function (i) {
+                item.map(i => {
                     i.destroy();
                 });
             }
@@ -146,57 +97,55 @@ var Component = /** @class */ (function () {
         });
         this.removeAllEventListeners();
         this.didUnmount();
-    };
+    }
     // HTMLElementに接続されたコールバック関数
-    Component.prototype.didMount = function () {
+    didMount() {
         //
-    };
+    }
     // HTMLElementから切断される前のコールバック関数
-    Component.prototype.willUnmount = function () {
+    willUnmount() {
         //
-    };
+    }
     // HTMLElementから切断されたコールバック関数
-    Component.prototype.didUnmount = function () {
+    didUnmount() {
         //
-    };
-    Component.isShared = false;
-    return Component;
-}());
+    }
+}
+Component.isShared = false;
 
 /**
  * reduxでjsの容量大きくならないように超雑に作ったstate管理マン
  * memo化もクソもないしパフォーマンス不安だけどｱｶﾝかったらredux使う
  */
-var StoreProvider = /** @class */ (function () {
-    function StoreProvider() {
+class StoreProvider {
+    constructor() {
         this.context = null;
     }
-    StoreProvider.create = function () {
+    static create() {
         if (StoreProvider.singleton) {
             return StoreProvider.singleton;
         }
         return (StoreProvider.singleton = new StoreProvider());
-    };
-    StoreProvider.prototype.setContext = function (context) {
+    }
+    setContext(context) {
         this.context = context;
-    };
-    StoreProvider.prototype.getContext = function () {
+    }
+    getContext() {
         if (!this.context) {
             throw Error('Store context does not exists');
         }
         return this.context;
-    };
-    StoreProvider.prototype.dispatch = function (action) {
+    }
+    dispatch(action) {
         return this.getContext().dispatch(action);
-    };
-    StoreProvider.prototype.getState = function () {
+    }
+    getState() {
         return this.getContext().getState();
-    };
-    StoreProvider.prototype.subscribe = function (listener) {
+    }
+    subscribe(listener) {
         return this.getContext().subscribe(listener);
-    };
-    return StoreProvider;
-}());
+    }
+}
 
 var dist = {};
 
@@ -608,60 +557,56 @@ SignalConnections$1.SignalConnections = SignalConnections;
 	Object.defineProperty(exports, "SignalConnections", { enumerable: true, get: function () { return SignalConnections_1.SignalConnections; } });
 } (dist));
 
-var dispatcher = new dist.Signal();
+const dispatcher = new dist.Signal();
 function createStore(reducer) {
-    var store;
-    var dispatch = function (action) {
+    let store;
+    const dispatch = (action) => {
         store = reducer(store, action);
         dispatcher.emit(action);
         return store;
     };
-    var subscribe = function (listener) {
-        var ret = dispatcher.connect(listener);
-        return ret.enabled ? function () { return ret.disconnect(); } : function () {
+    const subscribe = (listener) => {
+        const ret = dispatcher.connect(listener);
+        return ret.enabled ? () => ret.disconnect() : () => {
             /* empty function */
         };
     };
     return {
-        dispatch: dispatch,
-        getState: function () { return store; },
-        subscribe: subscribe,
+        dispatch,
+        getState: () => store,
+        subscribe,
     };
 }
 
-function createSlice(_a) {
-    var initialValues = _a.initialValues, reducers = _a.reducers;
-    var actions = Object.keys(reducers).reduce(function (acc, key) {
-        var _a;
-        return __assign(__assign({}, acc), (_a = {}, _a[key] = function (payload) { return ({ payload: payload, type: key }); }, _a));
+function createSlice({ initialValues, reducers }) {
+    const actions = Object.keys(reducers).reduce((acc, key) => {
+        return Object.assign(Object.assign({}, acc), { [key]: (payload) => ({ payload, type: key }) });
     }, {});
-    var reducer = function (state, action) {
-        if (state === void 0) { state = initialValues; }
-        var reducer = reducers[action.type];
+    const reducer = (state = initialValues, action) => {
+        const reducer = reducers[action.type];
         // TODO: reducerによってstateが変更されreturnしている（オブジェクト参照が気になり）
         reducer === null || reducer === void 0 ? void 0 : reducer(state, action);
         return state;
     };
     return {
-        actions: actions,
-        getInitialValues: function () { return initialValues; },
-        reducer: reducer,
+        actions,
+        getInitialValues: () => initialValues,
+        reducer,
     }; /* TODO: types */
 }
 
-var createSelector = function (selector, selectReturn) {
-    return function (state) {
-        var val = selector(state);
+const createSelector = (selector, selectReturn) => {
+    return (state) => {
+        const val = selector(state);
         return selectReturn(val);
     };
 };
 
-var combineReducers = function (reducers) {
-    return function (state, action) {
-        var nextState = {};
-        Object.entries(reducers).forEach(function (_a) {
-            var key = _a[0], reducer = _a[1];
-            var prevState = state && state[key];
+const combineReducers = (reducers) => {
+    return (state, action) => {
+        const nextState = {};
+        Object.entries(reducers).forEach(([key, reducer]) => {
+            const prevState = state && state[key];
             nextState[key] = reducer(prevState, action);
         });
         return nextState;
@@ -689,18 +634,18 @@ var equal = function equal (a, b) {
 /**
  * 簡単なメモ化機能付き
  */
-var observeStore = function (selector, store, initialState, onChange, options) {
-    var _a = (options || {}).equalityFn, equalityFn = _a === void 0 ? equal : _a;
-    var currentState = initialState;
+const observeStore = (selector, store, initialState, onChange, options) => {
+    const { equalityFn = equal } = options || {};
+    let currentState = initialState;
     function handleChange() {
-        var nextState = selector(store.getState());
-        var isSameState = equalityFn(nextState, currentState);
+        const nextState = selector(store.getState());
+        const isSameState = equalityFn(nextState, currentState);
         if (!isSameState) {
             currentState = nextState;
             onChange(currentState);
         }
     }
-    var unsubscribe = store.subscribe(handleChange);
+    const unsubscribe = store.subscribe(handleChange);
     handleChange();
     return unsubscribe;
 };
@@ -735,25 +680,22 @@ var observeStore = function (selector, store, initialState, onChange, options) {
 /**
  * storeのsubscribeのunsubscribeし忘れないようにするためだけのクラス
  */
-var ConnectedComponent = /** @class */ (function (_super) {
-    __extends(ConnectedComponent, _super);
-    function ConnectedComponent() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.unsubscribes = new Map();
-        _this.store = StoreProvider.create();
-        return _this;
+class ConnectedComponent extends Component {
+    constructor() {
+        super(...arguments);
+        this.unsubscribes = new Map();
+        this.store = StoreProvider.create();
     }
-    ConnectedComponent.prototype.observe = function (selector, onChange) {
-        var state = this.store.getState();
-        var initialValue = selector(state);
+    observe(selector, onChange) {
+        const state = this.store.getState();
+        const initialValue = selector(state);
         this.unsubscribes.set(selector, observeStore(selector, this.store, initialValue, onChange));
         return initialValue;
-    };
-    ConnectedComponent.prototype.willUnmount = function () {
-        this.unsubscribes.forEach(function (unsubscribe) { return unsubscribe(); });
-    };
-    return ConnectedComponent;
-}(Component));
+    }
+    didUnmount() {
+        this.unsubscribes.forEach((unsubscribe) => unsubscribe());
+    }
+}
 // FIXME: decorateした側のClassで型解決できないので不可能
 // https://github.com/microsoft/TypeScript/issues/4881
 //  https://stackoverflow.com/questions/36512151/typescript-class-decorators-add-class-method
@@ -785,62 +727,56 @@ var ConnectedComponent = /** @class */ (function (_super) {
 /**
  * ComponentGenerator
  */
-var ComponentGenerator = /** @class */ (function () {
-    function ComponentGenerator(map) {
+class ComponentGenerator {
+    constructor(map) {
         this.map = map;
         this._components = new Map();
     }
-    ComponentGenerator.prototype.initialize = function () {
-        var _this = this;
-        Object.entries(this.map).map(function (_a) {
-            var selectors = _a[0], ComponentClass = _a[1];
-            var elements = Array.from(document.querySelectorAll(selectors));
-            var ret = elements === null || elements === void 0 ? void 0 : elements.map(function (element) {
+    initialize() {
+        Object.entries(this.map).map(([selectors, ComponentClass]) => {
+            const elements = Array.from(document.querySelectorAll(selectors));
+            const ret = elements === null || elements === void 0 ? void 0 : elements.map((element) => {
                 return new ComponentClass(element);
             });
-            _this._components.set(selectors, ret);
+            this._components.set(selectors, ret);
         });
-    };
-    ComponentGenerator.prototype.refresh = function () {
-        var _this = this;
-        Object.entries(this.map).map(function (_a) {
-            var selectors = _a[0], ComponentClass = _a[1];
-            var elements = Array.from(document.querySelectorAll(selectors));
-            var ret = elements === null || elements === void 0 ? void 0 : elements.map(function (element) {
+    }
+    refresh() {
+        Object.entries(this.map).map(([selectors, ComponentClass]) => {
+            const elements = Array.from(document.querySelectorAll(selectors));
+            const ret = elements === null || elements === void 0 ? void 0 : elements.map((element) => {
                 if (!ComponentClass.isShared) {
                     return new ComponentClass(element);
                 }
-            }).filter(function (c) { return !!c; });
-            _this._components.set(selectors, ret);
+            }).filter((c) => !!c);
+            this._components.set(selectors, ret);
         });
-    };
-    ComponentGenerator.prototype.mount = function () {
-        this._components.forEach(function (components) {
-            components.map(function (component) { return component.mount(); });
+    }
+    mount() {
+        this._components.forEach((components) => {
+            components.map((component) => component.mount());
         });
-    };
-    ComponentGenerator.prototype.willUnmount = function () {
-        this._components.forEach(function (components) {
-            components.map(function (component) {
+    }
+    willUnmount() {
+        this._components.forEach((components) => {
+            components.map((component) => {
                 if (!component.isShared) {
                     component.element && component.willUnmount();
                 }
             });
         });
-    };
-    ComponentGenerator.prototype.unmount = function () {
-        var _this = this;
-        this._components.forEach(function (components, selectors) {
-            components.map(function (component) {
+    }
+    unmount() {
+        this._components.forEach((components, selectors) => {
+            components.map((component) => {
                 if (!component.isShared) {
-                    _this._components.delete(selectors);
+                    this._components.delete(selectors);
                     component.element && component.destroy();
                 }
             });
         });
-    };
-    return ComponentGenerator;
-}());
+    }
+}
 
 /**
  * ShanordComponentにするデコ-レーター
@@ -849,20 +785,13 @@ var ComponentGenerator = /** @class */ (function () {
  */
 function sharedComponent(constructor) {
     var _a;
-    return _a = /** @class */ (function (_super) {
-            __extends(class_1, _super);
-            function class_1() {
-                var args = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
-                }
-                var _this = _super.apply(this, args) || this;
-                _this._isShared = true;
-                _this._isMounted = false;
-                return _this;
+    return _a = class extends constructor {
+            constructor(...args) {
+                super(...args);
+                this._isShared = true;
+                this._isMounted = false;
             }
-            return class_1;
-        }(constructor)),
+        },
         _a.isShared = true,
         _a;
 }

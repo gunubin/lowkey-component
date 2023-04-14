@@ -26,7 +26,7 @@ export class ConnectedComponent<THTMLElement extends HTMLElement = HTMLElement, 
     return initialValue
   }
 
-  willUnmount() {
+  didUnmount() {
     this.unsubscribes.forEach((unsubscribe) => unsubscribe())
   }
 }
