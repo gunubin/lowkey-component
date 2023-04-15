@@ -1,15 +1,22 @@
+import {ConnectedComponent} from './ConnectedComponent';
 import {Component} from './Component'
 
+type ComponentCreator<THTMLElement extends HTMLElement = any, TRefs extends Refs = Refs> = new (
+  element: THTMLElement,
+) => Component<THTMLElement, TRefs> | ConnectedComponent<THTMLElement, TRefs>;
+
+export type ComponentMap = {
+  [selector: string]: ComponentCreator;
+};
+
 export interface IComponentGenerator {
-  initialize(): void;
+  initialize(container?: HTMLElement | null): void;
 
-  mount(): void;
+  refresh(container?: HTMLElement | null): void;
 
-  refresh(): void;
+  mount(container?: HTMLElement | null): void;
 
-  unmount(): void;
-
-  willUnmount(): void;
+  unmount(container?: HTMLElement | null): void;
 }
 
 export type Refs = Record<string, Component | undefined>;

@@ -6,26 +6,17 @@ type RefElementType<T> = T extends Component<infer U> ? U : never;
  * Component Class
  */
 export class Component<THTMLElement extends HTMLElement = HTMLElement, TRefs extends Refs = Refs> {
-  static isShared = false
   private handlers: Map<EventListener, string> = new Map()
   private selected: Map<string, Component | Component[]> = new Map()
-  protected _isShared = false
   protected _isMounted = false
   protected refs: TRefs = {} as TRefs
 
   constructor(public element: THTMLElement) {
-    //
-  }
-
-  // 全ページで共通のコンポーネント
-  // ページ遷移してもunmount / destroyされないコンポーネント
-  public get isShared() {
-    return this._isShared
   }
 
   // HTMLElementに接続する
   public mount() {
-    if (this._isShared && this._isMounted) {
+    if (this._isMounted) {
       return
     }
 
@@ -118,11 +109,6 @@ export class Component<THTMLElement extends HTMLElement = HTMLElement, TRefs ext
 
   // HTMLElementに接続されたコールバック関数
   protected didMount(): void {
-    //
-  }
-
-  // HTMLElementから切断される前のコールバック関数
-  public willUnmount(): void {
     //
   }
 

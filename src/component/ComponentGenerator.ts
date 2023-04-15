@@ -1,73 +1,69 @@
-import {Component} from './Component'
-import {ConnectedComponent} from './ConnectedComponent'
-import {IComponentGenerator, Refs} from './types'
+import { Component } from './Component';
+import { ConnectedComponent } from './ConnectedComponent';
+import { ComponentMap, IComponentGenerator } from './types';
 
-type ComponentCreator<THTMLElement extends HTMLElement = any, TRefs extends Refs = Refs> = new (
-  element: THTMLElement,
-) => Component<THTMLElement, TRefs> | ConnectedComponent<THTMLElement, TRefs>;
-
-export type ComponentMap = {
-  [selector: string]: ComponentCreator;
-};
+type InstancesMap = Map<string, Array<Component | ConnectedComponent>>;
+type ContainerMap = Map<HTMLElement, InstancesMap>;
 
 /**
  * ComponentGenerator
  */
 export class ComponentGenerator implements IComponentGenerator {
-  private _components: Map<string, Array<Component | ConnectedComponent>> = new Map()
+  private _containers: ContainerMap = new Map();
 
-  constructor(private map: ComponentMap) {
+  constructor(private map: ComponentMap) {}
+
+  private checkContainer(container: HTMLElement | null): HTMLElement {
+    if (!container) {
+      throw new Error('container is not found.');
+    }
+    return container;
   }
 
-  public initialize() {
-    Object.entries(this.map).map(([selectors, ComponentClass]) => {
-      const elements = Array.from(document.querySelectorAll(selectors) as NodeListOf<HTMLElement>)
+  private createInstances(container: HTMLElement, instancesMap: InstancesMap) {
+    Object.entries(this.map).forEach(([selectors, ComponentClass]) => {
+      const elements = Array.from(container.querySelectorAll(selectors));
 
-      const ret = elements?.map((element) => {
-        return new ComponentClass(element)
-      })
-      this._components.set(selectors, ret)
-    })
+      const instances = elements.map((element) => {
+        return new ComponentClass(element);
+      });
+      instancesMap.set(selectors, instances);
+    });
   }
 
-  public refresh() {
-    Object.entries(this.map).map(([selectors, ComponentClass]) => {
-      const elements = Array.from(document.querySelectorAll(selectors))
-      const ret = elements
-      ?.map((element) => {
-        if (!(ComponentClass as typeof Component).isShared) {
-          return new ComponentClass(element)
-        }
-      })
-      .filter((c) => !!c) as Component[]
-      this._components.set(selectors, ret)
-    })
+  public initialize(container: HTMLElement | null = document.body) {
+    container = this.checkContainer(container);
+    const instancesMap: InstancesMap = new Map();
+    this._containers.set(container, instancesMap);
+
+    this.createInstances(container, instancesMap);
   }
 
-  public mount() {
-    this._components.forEach((components) => {
-      components.map((component) => component.mount())
-    })
+  public refresh(container: HTMLElement | null = document.body) {
+    container = this.checkContainer(container);
+    const instancesMap: InstancesMap = this._containers.get(container) || new Map();
+
+    this.createInstances(container, instancesMap);
+    this._containers.set(container, instancesMap);
   }
 
-  public willUnmount() {
-    this._components.forEach((components) => {
-      components.map((component) => {
-        if (!component.isShared) {
-          component.element && component.willUnmount()
-        }
-      })
-    })
+  public mount(container: HTMLElement | null = document.body) {
+    container = this.checkContainer(container);
+    const instancesMap = this._containers.get(container);
+    instancesMap?.forEach((components) => {
+      components.forEach((component) => component.mount());
+    });
   }
 
-  public unmount() {
-    this._components.forEach((components, selectors) => {
-      components.map((component) => {
-        if (!component.isShared) {
-          this._components.delete(selectors)
-          component.element && component.destroy()
-        }
-      })
-    })
+  public unmount(container: HTMLElement | null = document.body) {
+    container = this.checkContainer(container);
+    const instancesMap = this._containers.get(container);
+    instancesMap?.forEach((components, selectors) => {
+      components.forEach((component) => {
+        instancesMap.delete(selectors);
+        component.destroy();
+      });
+    });
+    this._containers.delete(container);
   }
 }

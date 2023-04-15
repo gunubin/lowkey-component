@@ -1,21 +1,15 @@
-import { Component } from './Component';
-import { ConnectedComponent } from './ConnectedComponent';
-import { IComponentGenerator, Refs } from './types';
-type ComponentCreator<THTMLElement extends HTMLElement = any, TRefs extends Refs = Refs> = new (element: THTMLElement) => Component<THTMLElement, TRefs> | ConnectedComponent<THTMLElement, TRefs>;
-export type ComponentMap = {
-    [selector: string]: ComponentCreator;
-};
+import { ComponentMap, IComponentGenerator } from './types';
 /**
  * ComponentGenerator
  */
 export declare class ComponentGenerator implements IComponentGenerator {
     private map;
-    private _components;
+    private _containers;
     constructor(map: ComponentMap);
-    initialize(): void;
-    refresh(): void;
-    mount(): void;
-    willUnmount(): void;
-    unmount(): void;
+    private checkContainer;
+    private createInstances;
+    initialize(container?: HTMLElement | null): void;
+    refresh(container?: HTMLElement | null): void;
+    mount(container?: HTMLElement | null): void;
+    unmount(container?: HTMLElement | null): void;
 }
-export {};

@@ -12,19 +12,12 @@
           this.element = element;
           this.handlers = new Map();
           this.selected = new Map();
-          this._isShared = false;
           this._isMounted = false;
           this.refs = {};
-          //
-      }
-      // 全ページで共通のコンポーネント
-      // ページ遷移してもunmount / destroyされないコンポーネント
-      get isShared() {
-          return this._isShared;
       }
       // HTMLElementに接続する
       mount() {
-          if (this._isShared && this._isMounted) {
+          if (this._isMounted) {
               return;
           }
           if (!this.element) {
@@ -108,16 +101,11 @@
       didMount() {
           //
       }
-      // HTMLElementから切断される前のコールバック関数
-      willUnmount() {
-          //
-      }
       // HTMLElementから切断されたコールバック関数
       didUnmount() {
           //
       }
   }
-  Component.isShared = false;
 
   /**
    * reduxでjsの容量大きくならないように超雑に作ったstate管理マン
@@ -736,70 +724,53 @@
   class ComponentGenerator {
       constructor(map) {
           this.map = map;
-          this._components = new Map();
+          this._containers = new Map();
       }
-      initialize() {
-          Object.entries(this.map).map(([selectors, ComponentClass]) => {
-              const elements = Array.from(document.querySelectorAll(selectors));
-              const ret = elements === null || elements === void 0 ? void 0 : elements.map((element) => {
+      checkContainer(container) {
+          if (!container) {
+              throw new Error('container is not found.');
+          }
+          return container;
+      }
+      createInstances(container, instancesMap) {
+          Object.entries(this.map).forEach(([selectors, ComponentClass]) => {
+              const elements = Array.from(container.querySelectorAll(selectors));
+              const instances = elements.map((element) => {
                   return new ComponentClass(element);
               });
-              this._components.set(selectors, ret);
+              instancesMap.set(selectors, instances);
           });
       }
-      refresh() {
-          Object.entries(this.map).map(([selectors, ComponentClass]) => {
-              const elements = Array.from(document.querySelectorAll(selectors));
-              const ret = elements === null || elements === void 0 ? void 0 : elements.map((element) => {
-                  if (!ComponentClass.isShared) {
-                      return new ComponentClass(element);
-                  }
-              }).filter((c) => !!c);
-              this._components.set(selectors, ret);
+      initialize(container = document.body) {
+          container = this.checkContainer(container);
+          const instancesMap = new Map();
+          this._containers.set(container, instancesMap);
+          this.createInstances(container, instancesMap);
+      }
+      refresh(container = document.body) {
+          container = this.checkContainer(container);
+          const instancesMap = this._containers.get(container) || new Map();
+          this.createInstances(container, instancesMap);
+          this._containers.set(container, instancesMap);
+      }
+      mount(container = document.body) {
+          container = this.checkContainer(container);
+          const instancesMap = this._containers.get(container);
+          instancesMap === null || instancesMap === void 0 ? void 0 : instancesMap.forEach((components) => {
+              components.forEach((component) => component.mount());
           });
       }
-      mount() {
-          this._components.forEach((components) => {
-              components.map((component) => component.mount());
-          });
-      }
-      willUnmount() {
-          this._components.forEach((components) => {
-              components.map((component) => {
-                  if (!component.isShared) {
-                      component.element && component.willUnmount();
-                  }
+      unmount(container = document.body) {
+          container = this.checkContainer(container);
+          const instancesMap = this._containers.get(container);
+          instancesMap === null || instancesMap === void 0 ? void 0 : instancesMap.forEach((components, selectors) => {
+              components.forEach((component) => {
+                  instancesMap.delete(selectors);
+                  component.destroy();
               });
           });
+          this._containers.delete(container);
       }
-      unmount() {
-          this._components.forEach((components, selectors) => {
-              components.map((component) => {
-                  if (!component.isShared) {
-                      this._components.delete(selectors);
-                      component.element && component.destroy();
-                  }
-              });
-          });
-      }
-  }
-
-  /**
-   * ShanordComponentにするデコ-レーター
-   * 全ページで共通のコンポーネント
-   * ページ遷移してもunmount / destroyされないコンポーネント
-   */
-  function sharedComponent(constructor) {
-      var _a;
-      return _a = class extends constructor {
-              constructor(...args) {
-                  super(...args);
-                  this._isShared = true;
-                  this._isMounted = false;
-              }
-          },
-          _a.isShared = true,
-          _a;
   }
 
   exports.Component = Component;
@@ -810,6 +781,5 @@
   exports.createSelector = createSelector;
   exports.createSlice = createSlice;
   exports.createStore = createStore;
-  exports.sharedComponent = sharedComponent;
 
 }));
