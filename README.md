@@ -21,10 +21,6 @@ class MyComponent extends Component {
 // Process when the component is mounted
   }
 
-  willUnmount() {
-// Process before the component is unmounted
-  }
-
   didUnmount() {
 // Process when the component is unmounted
   }
@@ -153,3 +149,35 @@ class MyConnectedComponent extends ConnectedComponent {
 ```
 
 
+## Integration barba.js
+```typescript
+class Heading extends Component {
+  didMount() {
+    console.log('Heading didMount');
+  }
+  didUnmount() {
+    console.log('Heading didUnmount');
+  }
+};
+
+const generator = new ComponentGenerator({
+  '.js-heading': Heading,
+});
+
+generator.initialize();
+
+barba.init({
+    transitions: [
+      {
+        beforeEnter: async ({next}) => {
+          generator.refresh(next.container);
+          generator.mount(next.container);
+        },
+        after: async ({current}) => {
+          generator.unmount(current.container);
+        }
+      }
+    ]
+});
+
+```
