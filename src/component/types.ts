@@ -10,7 +10,7 @@ export type ComponentMap = {
 };
 
 export interface IComponentGenerator {
-  initialize(container?: HTMLElement | null): void;
+  initialize(): void;
 
   refresh(container?: HTMLElement | null): void;
 

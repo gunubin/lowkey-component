@@ -720,52 +720,65 @@ class ConnectedComponent extends Component {
 class ComponentGenerator {
     constructor(map) {
         this.map = map;
+        this._documentBody = null;
         this._containers = new Map();
     }
-    checkContainer(container) {
+    ensureContainerExists(container) {
         if (!container) {
             throw new Error('container is not found.');
         }
         return container;
     }
-    createInstances(container, instancesMap) {
-        Object.entries(this.map).forEach(([selectors, ComponentClass]) => {
-            const elements = Array.from(container.querySelectorAll(selectors));
-            const instances = elements.map((element) => {
-                return new ComponentClass(element);
-            });
-            instancesMap.set(selectors, instances);
+    createInstancesForContainer(container, instancesMap) {
+        Object.entries(this.map).forEach(([selector, ComponentClass]) => {
+            const elements = Array.from(container.querySelectorAll(selector));
+            const instances = elements.map((element) => new ComponentClass(element));
+            instancesMap.set(selector, instances);
         });
     }
-    initialize(container = document.body) {
-        container = this.checkContainer(container);
+    initialize() {
+        this._documentBody = document.body;
         const instancesMap = new Map();
-        this._containers.set(container, instancesMap);
-        this.createInstances(container, instancesMap);
+        this._containers.set(this._documentBody, instancesMap);
+        this.createInstancesForContainer(this._documentBody, instancesMap);
     }
     refresh(container = document.body) {
-        container = this.checkContainer(container);
+        container = this.ensureContainerExists(container);
         const instancesMap = this._containers.get(container) || new Map();
-        this.createInstances(container, instancesMap);
+        this.createInstancesForContainer(container, instancesMap);
         this._containers.set(container, instancesMap);
     }
     mount(container = document.body) {
-        container = this.checkContainer(container);
+        container = this.ensureContainerExists(container);
         const instancesMap = this._containers.get(container);
         instancesMap === null || instancesMap === void 0 ? void 0 : instancesMap.forEach((components) => {
             components.forEach((component) => component.mount());
         });
     }
-    unmount(container = document.body) {
-        container = this.checkContainer(container);
+    processUnmount(container = document.body, destroyProcess) {
+        container = this.ensureContainerExists(container);
         const instancesMap = this._containers.get(container);
-        instancesMap === null || instancesMap === void 0 ? void 0 : instancesMap.forEach((components, selectors) => {
+        instancesMap === null || instancesMap === void 0 ? void 0 : instancesMap.forEach((components, selector) => {
             components.forEach((component) => {
-                instancesMap.delete(selectors);
-                component.destroy();
+                destroyProcess(component, selector, instancesMap);
             });
         });
         this._containers.delete(container);
+    }
+    // containerがdocument.bodyから削除されたタイミングで呼ぶこと。
+    // 削除されずに実行すると、this._documentBodyに紐付いたComponentが破棄されずにメモリリークする
+    unmount(container = document.body) {
+        this.processUnmount(this._documentBody, (component, selector, instancesMap) => {
+            var _a;
+            if (!((_a = this._documentBody) === null || _a === void 0 ? void 0 : _a.contains(component.element))) {
+                instancesMap === null || instancesMap === void 0 ? void 0 : instancesMap.delete(selector);
+                component.destroy();
+            }
+        });
+        this.processUnmount(container, (component, selector, instancesMap) => {
+            instancesMap === null || instancesMap === void 0 ? void 0 : instancesMap.delete(selector);
+            component.destroy();
+        });
     }
 }
 
