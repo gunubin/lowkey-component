@@ -7,6 +7,7 @@ type ContainerMap = Map<HTMLElement, InstancesMap>;
 
 /**
  * ComponentGenerator
+ * Convert DOM elements to components based on ComponentMap.
  */
 export class ComponentGenerator implements IComponentGenerator {
   private _documentBody: HTMLElement | null = null;

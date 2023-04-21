@@ -643,33 +643,6 @@
       handleChange();
       return unsubscribe;
   };
-  // export const observeStore = <TSelector extends Selector>(
-  //   selector: TSelector,
-  //   redux: ReduxState,
-  //   initialState: ReturnType<TSelector>,
-  //   onChange: (val: ReturnType<TSelector>) => void,
-  //   options?: {
-  //     equalityFn?: Function;
-  //   },
-  // ) => {
-  //   const {equalityFn = shallowEqual} = options || {};
-  //   let currentState = initialState;
-  //
-  //   // let currentState: any;
-  //
-  //   function handleChange() {
-  //     let nextState = selector(redux.getState()) as ReturnType<TSelector>;
-  //     const same = equalityFn(nextState, currentState);
-  //     if (!same) {
-  //       currentState = nextState;
-  //       onChange(currentState);
-  //     }
-  //   }
-  //
-  //   let unsubscribe = redux.subscribe(handleChange);
-  //   handleChange();
-  //   return unsubscribe;
-  // };
 
   /**
    * storeのsubscribeのunsubscribeし忘れないようにするためだけのクラス
@@ -690,36 +663,10 @@
           this.unsubscribes.forEach((unsubscribe) => unsubscribe());
       }
   }
-  // FIXME: decorateした側のClassで型解決できないので不可能
-  // https://github.com/microsoft/TypeScript/issues/4881
-  //  https://stackoverflow.com/questions/36512151/typescript-class-decorators-add-class-method
-  // export function connect<T extends {new (...args: any[]): {}}>(constructor: T) {
-  //   return class extends constructor {
-  //     private unsubscribes: Map<Selector, Unsubscribe> = new Map();
-  //
-  //     observe<TSelector extends Selector>(
-  //       selector: TSelector,
-  //       onChange: (val: ReturnType<TSelector>) => void,
-  //     ) {
-  //       this.unsubscribes.set(selector, observeStore(selector, onChange));
-  //     }
-  //
-  //     willUnmount() {
-  //       this.unsubscribes.forEach((unsubscribe) => unsubscribe());
-  //     }
-  //   };
-  // }
-  // (<any>project).test() 型キャストでできるけど type safeじゃない
-  // これは型キャスト用 (this as any as IConnectedComponent).observe()
-  // export interface IConnectedComponent {
-  //   observe: <TSelector extends Selector>(
-  //     selector: TSelector,
-  //     onChange: (val: ReturnType<TSelector>) => void,
-  //   ) => void;
-  // }
 
   /**
    * ComponentGenerator
+   * Convert DOM elements to components based on ComponentMap.
    */
   class ComponentGenerator {
       constructor(map) {

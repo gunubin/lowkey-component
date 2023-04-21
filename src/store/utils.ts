@@ -31,31 +31,3 @@ export const observeStore = <TState, TSelector extends Selector>(
   handleChange();
   return unsubscribe;
 };
-
-// export const observeStore = <TSelector extends Selector>(
-//   selector: TSelector,
-//   redux: ReduxState,
-//   initialState: ReturnType<TSelector>,
-//   onChange: (val: ReturnType<TSelector>) => void,
-//   options?: {
-//     equalityFn?: Function;
-//   },
-// ) => {
-//   const {equalityFn = shallowEqual} = options || {};
-//   let currentState = initialState;
-//
-//   // let currentState: any;
-//
-//   function handleChange() {
-//     let nextState = selector(redux.getState()) as ReturnType<TSelector>;
-//     const same = equalityFn(nextState, currentState);
-//     if (!same) {
-//       currentState = nextState;
-//       onChange(currentState);
-//     }
-//   }
-//
-//   let unsubscribe = redux.subscribe(handleChange);
-//   handleChange();
-//   return unsubscribe;
-// };

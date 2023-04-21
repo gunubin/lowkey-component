@@ -1,6 +1,7 @@
 import { ComponentMap, IComponentGenerator } from './types';
 /**
  * ComponentGenerator
+ * Convert DOM elements to components based on ComponentMap.
  */
 export declare class ComponentGenerator implements IComponentGenerator {
     private map;
